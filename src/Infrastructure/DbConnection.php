@@ -13,7 +13,7 @@ class DbConnection
     private static $properties = null;
     private const ENV_PATH = __DIR__ . '/../../.env';
 
-    public function __construct() {
+    private function __construct() {
 
         $options = [
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -26,24 +26,16 @@ class DbConnection
                 self::$properties["pass"],
                 $options
             );
+            
+            // à remplacer par une vrai classe de log
+            echo "Database connection established.\n";
         } catch (PDOException $e) {
             throw new RuntimeException("Database connection failed.");
         }     
     }
 
-    public static function getInstance() {
-
-        if (self::$instance === null) {
-            echo "instance pdo\n";
-            self::setProperties();
-            self::$instance = new DbConnection();
-        }
-        return self::$instance;
-    }
-
     private static function setProperties() {
         if (self::$properties === null) {
-            echo "init properties\n";
 
             $env = file_exists(self::ENV_PATH) 
                 ? parse_ini_file(self::ENV_PATH) : die("File .env not found !");
@@ -54,6 +46,15 @@ class DbConnection
                 'pass' => $env["DB_PASS"]
             ];
         }
+    }
+
+    public static function getInstance() {
+
+        if (self::$instance === null) {
+            self::setProperties();
+            self::$instance = new DbConnection();
+        }
+        return self::$instance;
     }
 }
 ?>
