@@ -3,34 +3,56 @@
 namespace App\Controller;
 
 use App\Core\View;
+use App\Service\TicketService;
+use App\Service\UserService;
 
 class TicketController
 {
+    private TicketService $ticketService;
+    private UserService $userService;
+
+    public function __construct()
+    {
+        $this->ticketService = new TicketService();
+        $this->userService = new UserService();
+    }
+
     public function getTicket()
     {
-        //a ce stade on est sensé recupéré les tickets depuis serviceTicket et les envoyer a la vue
-    
-        // Simulons la récupération des tickets depuis un service
-        $tickets = [
-            ['id' => 1,
-            'title' => 'Problème de connexion',
-            'status' => 'Ouvert',
-            'description' => 'Je ne peux pas me connecter à mon compte.',
-            'priority' => 'Haute',
-            'created_at' => '2024-06-01 10:00:00',
-            'created_by' => 'John Doe'
-            ],
-            ['id' => 2, 'title' => 'Problème de paiement', 
-            'status' => 'Fermé',
-            'description' => 'Je ne peux pas effectuer de paiement.',
-            'priority' => 'Moyenne',
-            'created_at' => '2024-06-02 14:30:00',
-            'created_by' => 'Jane Smith'
-            ]
-        ];
+        // Vérifier si l'utilisateur est connecté
+        session_start();
+        $username = $_SESSION['username'] ?? null;
 
-        // On appel la classe view pour afficher les tickets
+        if (!$username) {
+            // Rediriger vers login si non connecté
+            header('Location: ?action=login');
+            exit;
+        }
+
+        // Récupérer l'utilisateur et son rôle
+        $user = $this->userService->getUserByUsername($username);
+        $role = $user->getRole();
+
+        // Récupérer les tickets selon le rôle
+        if ($role === 'client') {
+            // Client = seulement ses tickets
+            $tickets = $this->ticketService->getTicketsByUser($user->getId());
+        } else {
+            // Chef de projet / Développeur = tous les tickets
+            $tickets = $this->ticketService->getTickets();
+        }
+
+        // Affichage via la vue
         $view = new View();
-        $view->render('tickets/index', ['tickets' => $tickets]);
+        $view->render('tickets/index', ['tickets' => $tickets, 'user' => $user]);
+    }
+    public function getTicketById(int $id)
+    {
+        // Récupération du ticket depuis le service
+        $ticket = $this->ticketService->getTicketById($id);
+
+        // Affichage via la vue
+        $view = new View();
+        $view->render('tickets/show', ['ticket' => $ticket]);
     }
 }
