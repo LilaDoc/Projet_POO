@@ -22,6 +22,10 @@ switch ($action) {
         $TicketController->getTicket();
         break;
 
+    case 'create':
+        $TicketController->createTicket();
+        break;
+
     case 'login':
         $UserController->login();  // Gère GET (affiche formulaire) et POST (traite login)
         break;

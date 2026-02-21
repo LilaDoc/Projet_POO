@@ -55,4 +55,47 @@ class TicketController
         $view = new View();
         $view->render('tickets/show', ['ticket' => $ticket]);
     }
+
+    public function createTicket()
+    {
+        session_start();
+        $username = $_SESSION['username'] ?? null;
+
+        if (!$username) {
+            header('Location: ?action=login');
+            exit;
+        }
+
+        // Vérifier que c'est une requête POST
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ?action=index');
+            exit;
+        }
+
+        // Récupérer les données du formulaire
+        $title = $_POST['title'] ?? '';
+        $description = $_POST['description'] ?? '';
+        $priority = $_POST['priority'] ?? 'Moyenne';
+
+        // Récupérer l'utilisateur connecté
+        $user = $this->userService->getUserByUsername($username);
+
+        // Préparer les données pour le service
+        $data = [
+            'id' => time(),  // ID temporaire basé sur le timestamp
+            'title' => $title,
+            'status' => 'Ouvert',
+            'description' => $description,
+            'priority' => $priority,
+            'created_at' => date('Y-m-d H:i:s'),
+            'created_by' => $user->getId()
+        ];
+
+        // Créer le ticket via le service
+        $this->ticketService->createTicket($data);
+
+        // Rediriger vers la liste
+        header('Location: ?action=index');
+        exit;
+    }
 }
