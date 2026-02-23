@@ -5,15 +5,15 @@ namespace App\Domain\Entity;
 class Comment
 {   private int $id_comment;
     private int $id_ticket;
-    private int $id_user;
+    private string $author;
     public string $body;
     public \DateTime $created_at;
 
-    public function __construct($id_comment, $id_ticket, $id_user, $body, $created_at)
+    public function __construct($id_comment, $id_ticket, $author, $body, $created_at)
     {
         $this->id_comment = $id_comment;
         $this->id_ticket = $id_ticket;
-        $this->id_user = $id_user;
+        $this->author = $author;
         $this->body = $body;
         $this->created_at = $created_at;
     }
@@ -28,9 +28,9 @@ class Comment
         return $this->id_ticket;
     }
 
-    public function getUserID(): int
+    public function getAuthor(): string
     {
-        return $this->id_user;
+        return $this->author;
     }
 
     public function getBody(): string

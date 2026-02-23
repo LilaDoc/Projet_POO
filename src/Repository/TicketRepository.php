@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use PDO;
+use App\Infrastructure\TicketFactory;
 
 class TicketRepository
 {    
@@ -79,7 +80,15 @@ class TicketRepository
                 "id" => $ticketId
             ]
         );
-        return $stmt->fetchAll();
+
+        $sql_comments = "SELECT * FROM comments WHERE ticket_id = :ticket_id";
+        $stmt_comments = $this->db->prepare($sql_comments);
+        $stmt_comments->execute(
+            [
+                "ticket_id" => $ticketId
+            ]
+        );
+        return TicketFactory::fromRows($stmt->fetch(), $stmt_comments->fetchAll());
     }
 
     //retourne un tableau de tickets
@@ -89,7 +98,24 @@ class TicketRepository
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
-        return $stmt->fetchAll();
+
+        $sql_comments = "SELECT * FROM comments";
+        $stmt_comments = $this->db->prepare($sql_comments);
+        $stmt_comments->execute();
+        
+        // Regroupe par ticket_id
+        $commentsByTicket = [];
+        foreach ($stmt_comments->fetchAll() as $comment) {
+            $commentsByTicket[$comment["ticket_id"]][] = $comment;
+        }
+
+        $tickets = [];
+        foreach ($stmt->fetchAll() as $ticket) {
+            $comments = $commentsByTicket[$ticket["id"]] ?? [];
+            $tickets[] = TicketFactory::fromRows($ticket, $comments);
+        }
+        
+        return $tickets;
     }
 
     //return un tableau de tickets d'un client
@@ -103,7 +129,24 @@ class TicketRepository
                 "user_id" => $userId
             ]
         );
-        return $stmt->fetchAll();
+        
+
+        $sql_comments = "SELECT * FROM comments";
+        $stmt_comments = $this->db->prepare($sql_comments);
+        $stmt_comments->execute();
+        
+        // Regroupe par ticket_id
+        $commentsByTicket = [];
+        foreach ($stmt_comments->fetchAll() as $comment) {
+            $commentsByTicket[$comment["ticket_id"]][] = $comment;
+        }
+
+        $tickets = [];
+        foreach ($stmt->fetchAll() as $ticket) {
+            $comments = $commentsByTicket[$ticket["id"]] ?? [];
+            $tickets[] = TicketFactory::fromRows($ticket, $comments);
+        }
+        return $tickets;
     }
 }
 ?>
