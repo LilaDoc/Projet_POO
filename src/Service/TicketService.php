@@ -3,7 +3,8 @@
 namespace App\Service;
 
 use App\Domain\Entity\Ticket;
-use App\Domain\Repository\TicketRepository;
+use App\Repository\TicketRepository;
+use App\Infrastructure\DbConnection;
 
 class TicketService
 {
@@ -11,7 +12,7 @@ class TicketService
 
     public function __construct()
     {
-        $this->ticketRepository = new TicketRepository();
+        $this->ticketRepository = new TicketRepository(DbConnection::getInstance()->getPdo());
     }
 
     /**
@@ -26,18 +27,18 @@ class TicketService
     {
         return $this->ticketRepository->findById($id);
     }
-    public function createTicket(array $data): Ticket
+    public function createTicket(array $data): array
     {
-        return $this->ticketRepository->save(
-            $data['id'],
+        $ticket = new Ticket(
             $data['title'],
-            $data['status'],
             $data['description'],
+            $data['status'],
             $data['priority'],
             $data['created_at'],
-            $data['created_by'],
-            $data['assigned_to'] ?? null
+            $data['created_by']
         );
+        $ticket->setAssignedTo($data['assigned_to'] ?? null);
+        return $this->ticketRepository->save($ticket);
     }
 
     /**
@@ -46,6 +47,6 @@ class TicketService
      */
     public function getTicketsByUser(int $userId): array
     {
-        return $this->ticketRepository->findByUser((string) $userId);
+        return $this->ticketRepository->findAllByUserId($userId);
     }
 }
