@@ -9,7 +9,7 @@ use RuntimeException;
 class DbConnection
 {
     private static $instance = null;
-    private $pdo = null;
+    private PDO $pdo;
     private static $properties = null;
     private const ENV_PATH = __DIR__ . '/../../.env';
 
@@ -20,7 +20,7 @@ class DbConnection
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ];
         try {
-            $pdo = new PDO(
+            $this->pdo = new PDO(
                 self::$properties["dsn"], 
                 self::$properties["user"],
                 self::$properties["pass"],
@@ -55,6 +55,10 @@ class DbConnection
             self::$instance = new DbConnection();
         }
         return self::$instance;
+    }
+
+    public function getPdo() : PDO {
+        return $this->pdo;
     }
 }
 ?>
