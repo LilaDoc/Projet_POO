@@ -6,23 +6,31 @@ use DateTime;
 
 class Ticket
 {    
-    private int $id_ticket;
+    private int $idTicket;
     private string $title;
     private string $description;
     private string $status;
     private string $priority;
-    public DateTime $created_at;
-    public array $comments;
+    private DateTime $createdAt;
+    private array $comments;
+    private int $userId;
+    private int $assignedTo;
 
-    public function __construct($id_ticket,$title,$description,$status,$priority,$created_at,$comments)
+    public function __construct(
+        $title,
+        $description,
+        $status,
+        $priority,
+        $createdAt,
+        $userId)
     {
-        $this->id_ticket = $id_ticket;
         $this->title = $title;
         $this->description = $description;
         $this->status = $status;
         $this->priority = $priority;
-        $this->created_at = new DateTime();
-        $this->comments = $comments;
+        $this->createdAt = $createdAt;
+        $this->userId = $userId;
+        $this->assignedTo = 0;
     }
 
     public function getDescription(): string
@@ -32,7 +40,7 @@ class Ticket
 
     public function getTicketID(): int
     {
-        return $this->id_ticket;
+        return $this->idTicket;
     }
 
     public function getTitle(): string
@@ -50,9 +58,9 @@ class Ticket
         return $this->priority;
     }
 
-    public function getCreatedAt(): \DateTime
+    public function getCreatedAt(): DateTime
     {
-        return $this->created_at;
+        return $this->createdAt;
     }
 
     public function getComments(): array
@@ -60,4 +68,25 @@ class Ticket
         return $this->comments;
     }
 
+    public function getAssignedTo(): int
+    {
+        return $this->assignedTo;
+    }
+
+     public function getUserId(): int
+    {
+        return $this->userId;
+    }
+
+    public function setIdTicket($idTicket) {
+        $this->idTicket = $idTicket;
+    }
+
+    public function setComments($comments) {
+        $this->comments = $comments;
+    }
+
+    public function setAssignedTo($userId) {
+        $this->assignedTo = $$userId;
+    }
 }
