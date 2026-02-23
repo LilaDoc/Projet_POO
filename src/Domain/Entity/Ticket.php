@@ -14,7 +14,7 @@ class Ticket
     private DateTime $createdAt;
     private array $comments;
     private int $userId;
-    private int $assignedTo;
+    private ?int $assignedTo;
 
     public function __construct(
         $title,
